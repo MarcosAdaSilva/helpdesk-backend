@@ -1,4 +1,4 @@
-package com.marcos.helpdesk.domain.enums;
+package enums;
 
 public enum Status {
 	
