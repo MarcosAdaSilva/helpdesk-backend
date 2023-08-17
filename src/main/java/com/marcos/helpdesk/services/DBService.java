@@ -25,7 +25,7 @@ public class DBService {
 
 	public void instanciaDB() {
 		
-		Tecnico tec1 = new Tecnico(null, "Valdir Cezar", "636.532.302.68", "valdir@mail.com", "123");
+		Tecnico tec1 = new Tecnico(null, "Valdir Cezar", "636.532.302-68", "valdir@mail.com", "123");
 		tec1.addPerfil(Perfil.ADMIN);
 		Tecnico tec2 = new Tecnico(null, "Richard Atallman", "903.347.070-56", "stallman@mail.com", "123");
 		Tecnico tec3 = new Tecnico(null, "Claude Elwood Shannonr", "271.068.470-54", "shannon@mail.com", "123");
