@@ -1,5 +1,7 @@
 package com.marcos.helpdesk.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import com.marcos.helpdesk.security.JWTAuthenticationFilter;
 import com.marcos.helpdesk.security.JWTAuthorizationFilter;
 import com.marcos.helpdesk.security.JWTUtil;
 
+@SuppressWarnings("deprecation")
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -37,15 +40,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
-			http.headers().frameOptions().disable();
+			extracted1(http);
 		}
 
-		http.cors().and().csrf().disable();
+		extracted1(http);
 		http.addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtUtil));
 		http.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userDetailsService));
-		http.authorizeRequests().antMatchers(PUBLIC_MATCHERS).permitAll().anyRequest().authenticated();
+		http.authorizeHttpRequests().antMatchers(PUBLIC_MATCHERS).permitAll().anyRequest().authenticated();
+        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+	}
 
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+	private HttpSecurity extracted1(HttpSecurity http) throws Exception {
+		return http.cors(withDefaults()).csrf(withDefaults());
 	}
 
 	@Override
@@ -62,8 +68,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return source;
 	}
 
-	@Bean
-	public BCryptPasswordEncoder bCryptPasswordEncoder() {
+    @Bean
+    BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
