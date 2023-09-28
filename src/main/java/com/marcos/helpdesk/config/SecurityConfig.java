@@ -1,7 +1,5 @@
 package com.marcos.helpdesk.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,19 +38,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
-			extracted1(http);
+           http.headers().frameOptions().disable();
 		}
+		
+		http.cors().and().csrf().disable();
 
-		extracted1(http);
+		//extracted1(http);
 		http.addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtUtil));
 		http.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userDetailsService));
 		http.authorizeHttpRequests().antMatchers(PUBLIC_MATCHERS).permitAll().anyRequest().authenticated();
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 	}
 
-	private HttpSecurity extracted1(HttpSecurity http) throws Exception {
-		return http.cors(withDefaults()).csrf(withDefaults());
-	}
+	//private HttpSecurity extracted1(HttpSecurity http) throws Exception {
+		//return http.cors(withDefaults()).csrf(withDefaults());
+	//}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {

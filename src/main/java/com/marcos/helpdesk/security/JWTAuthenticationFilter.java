@@ -46,9 +46,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
-			Authentication auth) throws IOException, ServletException {
+			Authentication authResult) throws IOException, ServletException {
 
-		String username = ((UserSS) auth.getPrincipal()).getUsername();
+		String username = ((UserSS) authResult.getPrincipal()).getUsername();
 		String token = jwtUtil.generateToken(username);
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
@@ -67,8 +67,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	private CharSequence json() {
 		long date = new Date().getTime();
-		return "{" + "\"timestamp\": " + date + ", " + "\"status\": 401, " + "\"error\": \"Não autorizado\", "
-				+ "\"message\": \"Email ou senha inválidos\", " + "\"path\": \"/login\"}";
+		return "{" + "\"timestamp\": " + date + ", "
+				+ "\"status\": 401, " 
+		        + "\"error\": \"Não autorizado\", "
+				+ "\"message\": \"Email ou senha inválidos\", " 
+		        + "\"path\": \"/login\"}";
 	}
 
 }
