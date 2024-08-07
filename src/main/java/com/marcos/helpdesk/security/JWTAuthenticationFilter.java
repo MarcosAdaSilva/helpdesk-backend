@@ -22,7 +22,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	private AuthenticationManager authenticationManager;
 	private JWTUtil jwtUtil;
-	private HttpServletResponse response;
 
 	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
 		super();
@@ -35,31 +34,35 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			throws AuthenticationException {
 		try {
 			CredenciaisDTO creds = new ObjectMapper().readValue(request.getInputStream(), CredenciaisDTO.class);
-			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-					creds.getEmail(), creds.getSenha(), new ArrayList<>());
+			UsernamePasswordAuthenticationToken authenticationToken = 
+					new UsernamePasswordAuthenticationToken(creds.getEmail(), creds.getSenha(), new ArrayList<>());
 			Authentication authentication = authenticationManager.authenticate(authenticationToken);
 			return authentication;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
+	@SuppressWarnings("null")
 	@Override
-	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
-			Authentication authResult) throws IOException, ServletException {
-
-		String username = ((UserSS) authResult.getPrincipal()).getUsername();
+    protected void successfulAuthentication(HttpServletRequest req,
+                                            HttpServletResponse res,
+                                            FilterChain chain,
+                                            Authentication auth) throws IOException, ServletException {
+	
+		String username = ((UserSS) auth.getPrincipal()).getUsername();
 		String token = jwtUtil.generateToken(username);
+		HttpServletResponse response = null;
 		response.setHeader("Access-Control-Allow-Origin", "*");
-		response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
-		response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, enctype, Location");
-		response.setHeader("Authorization", "Bearer " + token);
+        	response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
+        	response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, enctype, Location");
+        	response.setHeader("Authorization", "Bearer " + token);
 	}
-
+	
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException failed) throws IOException, ServletException {
-
+		
 		response.setStatus(401);
 		response.setContentType("application/json");
 		response.getWriter().append(json());
@@ -67,11 +70,12 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	private CharSequence json() {
 		long date = new Date().getTime();
-		return "{" + "\"timestamp\": " + date + ", "
-				+ "\"status\": 401, " 
-		        + "\"error\": \"Não autorizado\", "
-				+ "\"message\": \"Email ou senha inválidos\", " 
-		        + "\"path\": \"/login\"}";
+		return "{"
+				+ "\"timestamp\": " + date + ", " 
+				+ "\"status\": 401, "
+				+ "\"error\": \"Não autorizado\", "
+				+ "\"message\": \"Email ou senha inválidos\", "
+				+ "\"path\": \"/login\"}";
 	}
-
+	
 }

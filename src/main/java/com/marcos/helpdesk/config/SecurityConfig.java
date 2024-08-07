@@ -38,21 +38,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
-           http.headers().frameOptions().disable();
+            http.headers(headers -> headers.frameOptions().disable());
 		}
-		
-		http.cors().and().csrf().disable();
 
-		//extracted1(http);
+		http.cors().and().csrf().disable();
 		http.addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtUtil));
 		http.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userDetailsService));
-		http.authorizeHttpRequests().antMatchers(PUBLIC_MATCHERS).permitAll().anyRequest().authenticated();
-        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-	}
+        http.authorizeHttpRequests(requests -> requests.antMatchers(PUBLIC_MATCHERS).permitAll().anyRequest().authenticated());
 
-	//private HttpSecurity extracted1(HttpSecurity http) throws Exception {
-		//return http.cors(withDefaults()).csrf(withDefaults());
-	//}
+		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+	}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
